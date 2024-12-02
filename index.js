@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const { createClient } = require('@supabase/supabase-js');
@@ -27,20 +28,26 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
     const resizedFilePath = `uploads/resized-${file.filename}${path.extname(file.originalname)}`;
 
-    await sharp(file.path)
-        .resize(128, 128)
-        .toFile(resizedFilePath);
+    try {
+        await sharp(file.path)
+            .resize(128, 128)
+            .toFile(resizedFilePath);
 
-    const { data, error } = await supabase.storage
-        .from(bucketName)
-        .upload(`public/${file.filename}${path.extname(file.originalname)}`, resizedFilePath);
+        const { data, error } = await supabase.storage
+            .from(bucketName)
+            .upload(`public/${file.filename}${path.extname(file.originalname)}`, resizedFilePath);
 
-    if (error) {
-        return res.status(500).send('Error uploading file to Supabase.');
+        if (error) {
+            console.error('Error uploading file to Supabase:', error);
+            return res.status(500).send('Error uploading file to Supabase.');
+        }
+
+        const fileUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${file.filename}${path.extname(file.originalname)}`;
+        res.json({ fileUrl });
+    } catch (err) {
+        console.error('Error processing file:', err);
+        res.status(500).send('Internal Server Error');
     }
-
-    const fileUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${file.filename}${path.extname(file.originalname)}`;
-    res.json({ fileUrl });
 });
 
 const PORT = process.env.PORT || 3000;
