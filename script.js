@@ -13,7 +13,7 @@ document.getElementById("uploadForm").addEventListener("submit", async function 
     formData.append("file", file);
 
     try {
-        const response = await fetch("https://your-render-web-service-url/upload", {
+        const response = await fetch("https://bemojify.onrender.com/upload", {
             method: "POST",
             body: formData,
         });
