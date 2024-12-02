@@ -29,10 +29,6 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const resizedFilePath = `uploads/resized-${file.filename}${path.extname(file.originalname)}`;
 
     try {
-        await sharp(file.path)
-            .resize(128, 128)
-            .toFile(resizedFilePath);
-
         const { data, error } = await supabase.storage
             .from(bucketName)
             .upload(`public/${file.filename}${path.extname(file.originalname)}`, resizedFilePath);
