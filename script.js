@@ -42,7 +42,6 @@ document.getElementById("uploadButton").addEventListener("click", async function
     }
 });
 
-// Add drag and drop functionality
 const dropZone = document.getElementById("drop-zone");
 
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
