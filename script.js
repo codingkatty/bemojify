@@ -27,8 +27,20 @@ document.getElementById("uploadButton").addEventListener("click", async function
             img.alt = "Uploaded Emoji";
             img.style.cursor = "pointer";
             img.addEventListener("click", () => {
-                navigator.clipboard.writeText(fileUrl);
-                alert("Image URL copied to clipboard!");
+                const format = prompt('Choose format (1: URL, 2: HTML, 3: Markdown):', '1');
+                let copyText;
+                switch(format) {
+                    case '2':
+                        copyText = `<img src="${fileUrl}" alt="emoji" width="24" height="24">`;
+                        break;
+                    case '3':
+                        copyText = `![emoji](${fileUrl})`;
+                        break;
+                    default:
+                        copyText = fileUrl;
+                }
+                navigator.clipboard.writeText(copyText);
+                alert("Copied to clipboard in selected format!");
             });
 
             const emojisContainer = document.getElementById("emojis");
