@@ -6,6 +6,7 @@ const path = require('path');
 const sharp = require('sharp');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const fs = require('fs');
 
 const app = express();
 app.use(cookieParser());
@@ -29,9 +30,16 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     const resizedFilePath = `uploads/resized-${file.filename}${path.extname(file.originalname)}`;
 
     try {
+        await sharp(file.path)
+            .resize(128, 128)
+            .toFile(resizedFilePath);
+
+        const fileBuffer = fs.readFileSync(resizedFilePath);
         const { data, error } = await supabase.storage
             .from(bucketName)
-            .upload(`public/${file.filename}${path.extname(file.originalname)}`, resizedFilePath);
+            .upload(`public/${file.filename}${path.extname(file.originalname)}`, fileBuffer, {
+                contentType: 'image/png'
+            });
 
         if (error) {
             console.error('Error uploading file to Supabase:', error);
