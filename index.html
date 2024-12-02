@@ -1,28 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home</title>
+    <title>Bemojify - Emoji Hosting</title>
     <link rel="stylesheet" href="styles.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Parkinsans:wght@300..800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav></nav>
-
     <div id="container">
+        <h1>Bemojify</h1>
         <div id="upload">
             <form id="uploadForm" enctype="multipart/form-data">
                 <div id="drop-zone">
                     <label for="fileInput">
                         <div class="drop-content">
-                            <span>Drag & drop your image here or click to browse</span>
+                            <div id="preview-container">
+                                <img id="preview" src="" alt="" style="display: none;">
+                                <span id="drop-text">Drag & drop your image here or click to browse</span>
+                            </div>
                             <input type="file" id="fileInput" name="file" accept="image/*">
                         </div>
                     </label>
                 </div>
-                <button type="button" id="uploadButton">Upload Emoji</button>
+                <button type="button" id="uploadButton" disabled>Upload Emoji</button>
             </form>
         </div>
         <div id="emojis">
             <h2>Your emojis:</h2>
+            <div id="emoji-grid"></div>
+        </div>
+    </div>
+
+    <div id="format-popup" class="popup">
+        <div class="popup-content">
+            <h3>Choose Format</h3>
+            <div class="format-options">
+                <button data-format="1">URL</button>
+                <button data-format="2">HTML</button>
+                <button data-format="3">Markdown</button>
+            </div>
+            <div id="copy-success" class="copy-success">Copied!</div>
         </div>
     </div>
 
