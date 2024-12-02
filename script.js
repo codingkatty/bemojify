@@ -26,8 +26,6 @@ document.getElementById("uploadButton").addEventListener("click", async function
             img.src = fileUrl;
             img.alt = "Uploaded Emoji";
             img.style.cursor = "pointer";
-            img.style.width = "128px";
-            img.style.height = "128px";
             img.addEventListener("click", () => {
                 navigator.clipboard.writeText(fileUrl);
                 alert("Image URL copied to clipboard!");
@@ -43,3 +41,42 @@ document.getElementById("uploadButton").addEventListener("click", async function
         alert("Error uploading file.");
     }
 });
+
+// Add drag and drop functionality
+const dropZone = document.getElementById("drop-zone");
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+});
+
+function highlight(e) {
+    dropZone.classList.add('dragover');
+}
+
+function unhighlight(e) {
+    dropZone.classList.remove('dragover');
+}
+
+dropZone.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const file = dt.files[0];
+    const fileInput = document.getElementById("fileInput");
+    
+    fileInput.files = dt.files;
+    document.getElementById("uploadButton").click();
+}
