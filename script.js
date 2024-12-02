@@ -22,10 +22,8 @@ document.getElementById("uploadForm").addEventListener("submit", async function 
             const result = await response.json();
             const fileUrl = result.fileUrl;
 
-            // Store the file URL in cookies
             document.cookie = `fileUrl=${fileUrl}; path=/`;
 
-            // Display the uploaded image
             const img = document.createElement("img");
             img.src = fileUrl;
             img.alt = "Uploaded Emoji";
