@@ -1,15 +1,17 @@
 :root {
-    --primary-color: #1a73e8;
-    --hover-color: #1557b0;
-    --bg-color: #f0f2f5;
-    --text-color: #202124;
+    --primary-color: #94c2f3;
+    --hover-color: #7ba7d8;
+    --bg-color: #f8f9fb;
+    --text-color: #565656;
+    --border-color: #dde1e7;
+    --shadow-color: rgba(0, 0, 0, 0.05);
 }
 
 body {
     font-family: 'Parkinsans', sans-serif;
     background-color: var(--bg-color);
     margin: 0;
-    padding: 2rem;
+    padding: 1rem;
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -19,11 +21,12 @@ body {
 #container {
     background: #ffffff;
     padding: 2rem;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 24px;
+    box-shadow: 0 8px 30px var(--shadow-color);
     max-width: 800px;
     margin: 0 auto;
     width: 90%;
+    overflow: hidden;
 }
 
 #upload {
@@ -31,18 +34,19 @@ body {
 }
 
 #drop-zone {
-    border: 2px dashed #ccd0d5;
-    border-radius: 12px;
+    border: 2px dashed var(--border-color);
+    border-radius: 16px;
     padding: 2rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
     margin-bottom: 1.5rem;
+    background-color: rgba(148, 194, 243, 0.05);
 }
 
 #drop-zone:hover, #drop-zone.dragover {
-    border-color: #1a73e8;
-    background-color: rgba(26, 115, 232, 0.05);
+    border-color: var(--primary-color);
+    background-color: rgba(148, 194, 243, 0.1);
 }
 
 .drop-content {
@@ -74,11 +78,18 @@ button {
     cursor: pointer;
     font-size: 1rem;
     font-weight: 500;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 button:hover {
     background-color: var(--hover-color);
+    transform: translateY(-1px);
+}
+
+button:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+    transform: none;
 }
 
 #emojis {
@@ -91,18 +102,31 @@ button:hover {
 
 #emojis h2 {
     width: 100%;
-    color: #202124;
+    color: var(--text-color);
     margin-bottom: 1rem;
-}
-
-#emojis img {
-    height: 24px;
-    width: 24px;
+    font-size: 1.5rem;
+    display: inline-block;
     vertical-align: middle;
-    transition: transform 0.2s ease;
 }
 
-#emojis img:hover {
+#emoji-grid {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    vertical-align: middle;
+    margin-left: 1rem;
+}
+
+#emoji-grid img {
+    height: 1.5rem;
+    width: 1.5rem;
+    object-fit: contain;
+    transition: transform 0.2s ease;
+    vertical-align: middle;
+}
+
+#emoji-grid img:hover {
     transform: scale(1.2);
 }
 
@@ -110,6 +134,7 @@ h1 {
     text-align: center;
     color: var(--primary-color);
     margin-bottom: 2rem;
+    font-size: 2.5rem;
 }
 
 #preview-container {
@@ -156,7 +181,7 @@ h1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(248, 249, 251, 0.95);
     justify-content: center;
     align-items: center;
 }
@@ -164,8 +189,8 @@ h1 {
 .popup-content {
     background: white;
     padding: 2rem;
-    border-radius: 12px;
-    text-align: center;
+    border-radius: 24px;
+    box-shadow: 0 8px 30px var(--shadow-color);
 }
 
 .format-options {
@@ -180,4 +205,28 @@ h1 {
     font-weight: 500;
     margin-top: 1rem;
     display: none;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 0.5rem;
+    }
+
+    #container {
+        padding: 1.5rem;
+        width: 95%;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    #emojis h2 {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    #emoji-grid {
+        margin-left: 0;
+    }
 }
