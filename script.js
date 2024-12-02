@@ -1,49 +1,56 @@
-document.getElementById("uploadForm").addEventListener("submit", async function (event) {
-    event.preventDefault();
+require('dotenv').config();
+const express = require('express');
+const multer = require('multer');
+const { createClient } = require('@supabase/supabase-js');
+const path = require('path');
+const sharp = require('sharp');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
-    const fileInput = document.getElementById("fileInput");
-    const file = fileInput.files[0];
+const app = express();
+app.use(cookieParser());
+app.use(express.static('public'));
+app.use(cors());
+
+const upload = multer({ dest: 'uploads/' });
+
+const supabaseUrl = 'https://spujdflzaohvsnolwmnx.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY;
+const bucketName = 'emoji';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+app.post('/upload', upload.single('file'), async (req, res) => {
+    const file = req.file;
 
     if (!file) {
-        alert("Please select a file to upload.");
-        return;
+        return res.status(400).send('No file uploaded.');
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
+    const resizedFilePath = `uploads/resized-${file.filename}${path.extname(file.originalname)}`;
 
     try {
-        const response = await fetch("https://bemojify.onrender.com/upload", {
-            method: "POST",
-            body: formData,
-        });
+        await sharp(file.path)
+            .resize(128, 128)
+            .toFile(resizedFilePath);
 
-        if (response.ok) {
-            const result = await response.json();
-            const fileUrl = result.fileUrl;
+        const { data, error } = await supabase.storage
+            .from(bucketName)
+            .upload(`public/${file.filename}${path.extname(file.originalname)}`, resizedFilePath);
 
-            // Store the file URL in cookies
-            document.cookie = `fileUrl=${fileUrl}; path=/`;
-
-            // Display the uploaded image
-            const img = document.createElement("img");
-            img.src = fileUrl;
-            img.alt = "Uploaded Emoji";
-            img.style.cursor = "pointer";
-            img.style.width = "128px";
-            img.style.height = "128px";
-            img.addEventListener("click", () => {
-                navigator.clipboard.writeText(fileUrl);
-                alert("Image URL copied to clipboard!");
-            });
-
-            const emojisContainer = document.getElementById("emojis");
-            emojisContainer.appendChild(img);
-        } else {
-            alert("Failed to upload file.");
+        if (error) {
+            console.error('Error uploading file to Supabase:', error);
+            return res.status(500).send('Error uploading file to Supabase.');
         }
-    } catch (error) {
-        console.error("Error uploading file:", error);
-        alert("Error uploading file.");
+
+        const fileUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${file.filename}${path.extname(file.originalname)}`;
+        res.json({ fileUrl });
+    } catch (err) {
+        console.error('Error processing file:', err);
+        res.status(500).send('Internal Server Error');
     }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
