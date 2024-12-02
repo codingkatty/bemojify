@@ -37,7 +37,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         const fileBuffer = fs.readFileSync(resizedFilePath);
         const { data, error } = await supabase.storage
             .from(bucketName)
-            .upload(`public/${file.filename}${path.extname(file.originalname)}`, fileBuffer, {
+            .upload(`${file.filename}${path.extname(file.originalname)}`, fileBuffer, {
                 contentType: 'image/png'
             });
 
