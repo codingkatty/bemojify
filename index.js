@@ -4,10 +4,12 @@ const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
 const sharp = require('sharp');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
 const app = express();
 app.use(cookieParser());
 app.use(express.static('public'));
+app.use(cors());
 
 const upload = multer({ dest: 'uploads/' });
 
