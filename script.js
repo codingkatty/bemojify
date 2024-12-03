@@ -1,4 +1,39 @@
+const STORAGE_BASE_URL = 'https://spujdflzaohvsnolwmnx.supabase.co/storage/v1/object/public/emoji/';
+
+function getNextCookieNumber() {
+    let maxNum = 0;
+    document.cookie.split(';').forEach(cookie => {
+        const match = cookie.trim().match(/fileUrl(\d+)=/);
+        if (match) {
+            maxNum = Math.max(maxNum, parseInt(match[1]));
+        }
+    });
+    return maxNum + 1;
+}
+
+function storeEmoji(filename) {
+    const nextNum = getNextCookieNumber();
+    document.cookie = `fileUrl${nextNum}=${filename}; path=/; max-age=31536000`;
+}
+
+function loadPreviousEmojis() {
+    const emojiGrid = document.getElementById('emoji-grid');
+    emojiGrid.innerHTML = '';
+
+    document.cookie.split(';').forEach(cookie => {
+        const trimmedCookie = cookie.trim();
+        if (trimmedCookie.startsWith('fileUrl')) {
+            const filename = trimmedCookie.split('=')[1];
+            if (filename) {
+                const fullUrl = STORAGE_BASE_URL + filename;
+                addEmojiToGrid(fullUrl);
+            }
+        }
+    });
+}
+
 document.getElementById("uploadButton").addEventListener("click", async function () {
+    const button = this; // Store button reference
     const fileInput = document.getElementById("fileInput");
     const file = fileInput.files[0];
 
@@ -6,6 +41,10 @@ document.getElementById("uploadButton").addEventListener("click", async function
         alert("Please select a file to upload.");
         return;
     }
+
+    // Disable button and show loading state
+    button.disabled = true;
+    button.textContent = 'Uploading...';
 
     const formData = new FormData();
     formData.append("file", file);
@@ -19,7 +58,8 @@ document.getElementById("uploadButton").addEventListener("click", async function
         if (response.ok) {
             const result = await response.json();
             const fileUrl = result.fileUrl;
-            document.cookie = `fileUrl=${fileUrl}; path=/; max-age=31536000`; // 1 year expiry
+            const filename = fileUrl.split('/').pop(); // Get just the filename
+            storeEmoji(filename);
             addEmojiToGrid(fileUrl);
             resetUploadForm();
         } else {
@@ -28,6 +68,8 @@ document.getElementById("uploadButton").addEventListener("click", async function
     } catch (error) {
         console.error("Error uploading file:", error);
         alert("Error uploading file.");
+    } finally {
+        button.textContent = 'Upload Emoji';
     }
 });
 
@@ -116,19 +158,6 @@ function showFormatPopup(fileUrl) {
     });
 }
 
-function loadPreviousEmojis() {
-    const cookies = document.cookie.split(';');
-    const emojiGrid = document.getElementById('emoji-grid');
-    emojiGrid.innerHTML = '';
-    
-    cookies.forEach(cookie => {
-        if (cookie.trim().startsWith('fileUrl=')) {
-            const fileUrl = cookie.split('=')[1];
-            addEmojiToGrid(fileUrl);
-        }
-    });
-}
-
 function addEmojiToGrid(fileUrl) {
     const img = document.createElement('img');
     img.src = fileUrl;
@@ -139,10 +168,15 @@ function addEmojiToGrid(fileUrl) {
 }
 
 function resetUploadForm() {
-    document.getElementById('preview').style.display = 'none';
-    document.getElementById('drop-text').style.display = 'block';
-    document.getElementById('uploadButton').disabled = true;
-    document.getElementById('fileInput').value = '';
+    const preview = document.getElementById('preview');
+    const dropText = document.getElementById('drop-text');
+    const uploadButton = document.getElementById('uploadButton');
+    const fileInput = document.getElementById('fileInput');
+
+    preview.style.display = 'none';
+    dropText.style.display = 'block';
+    uploadButton.disabled = true;
+    fileInput.value = '';
 }
 
 document.getElementById('format-popup').addEventListener('click', function(e) {
